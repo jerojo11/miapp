@@ -1,7 +1,3 @@
-# miapp
-mi app_my restaurant
-# Restaurante_IUD
-Proyecto pagina web restaurante.
 # Restaurants App
 
 ## Descripción
