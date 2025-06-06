@@ -161,4 +161,25 @@ export const restaurantdata = [
     imagen: "cuan.jpg",
     horarioAtencion: "Ver fragmento",
   },
+  {
+    nombre: "La Pizzeria",
+    descripcion: "Las mejores pizzas artesanales de Medellín, hornos importados de Italia.",
+    direccion: "Calle 10 #43-31, El Poblado",
+    horarioAtencion: "Martes a Domingo: 12:00 PM - 10:00 PM",
+    imagen: "https://images.unsplash.com/photo-1513104890138-7c749659a591"
+  },
+  {
+    nombre: "Sushi House",
+    descripcion: "Auténtica experiencia japonesa con los más frescos ingredientes.",
+    direccion: "Cra. 37 #8A-21, Provenza",
+    horarioAtencion: "Lunes a Sábado: 12:00 PM - 11:00 PM",
+    imagen: "https://images.unsplash.com/photo-1579871494447-9811cf80d66c"
+  },
+  {
+    nombre: "La Parrilla Criolla",
+    descripcion: "El mejor asado argentino en el corazón de Medellín.",
+    direccion: "Calle 8 #42-15, El Poblado",
+    horarioAtencion: "Todos los días: 12:00 PM - 11:00 PM",
+    imagen: "https://images.unsplash.com/photo-1544025162-d76694265947"
+  }
 ];

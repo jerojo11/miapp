@@ -1,170 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { db } from '../firebase/config';
+import { collection, getDocs, addDoc, query, where } from 'firebase/firestore';
+import { restaurantdata as initialData } from './data.js';
 
-// Datos de los restaurantes (previamente en data.js)
-export const restaurantdata = [
-  {
-    id: "el-cielo",
-    nombre: "El Cielo",
-    descripcion:
-      "Posible experiencia con estrellas Michelin, experiencia sensorial de 22 platos, #47 entre los mejores restaurantes de América del Sur, menú degustación lúdico de alta y baja cocina, conocido por la experiencia de lavado de manos con chocolate. El chef Juan Manuel Barrientos es una figura clave.",
-    direccion: "Calle 7d #43c-36",
-    imagen: "/images/cielo.jpg",
-    horarioAtencion: "Abierto para almuerzo y cena (confirmado en su sitio web)",
-  },
-  {
-    id: "carmen",
-    nombre: "Carmen",
-    descripcion:
-      "Trabaja con ingredientes locales de alta calidad, sucursales en Cartagena y Medellín, parte de un grupo que incluye XO y Moshi, conocido por su elegante entorno y jardín. Celebridades como Tom Cruise han cenado aquí.",
-    direccion: "Cra. 36 #10a-27",
-      imagen: "/images/carmen.jpg",
-    horarioAtencion: "12:30–14:30 y 18:30–21:30 (confirmado en su sitio web)",
-  },
-  {
-    id: "xo",
-    nombre: "XO",
-    descripcion:
-      "Parte del grupo Carmen, celebra la biodiversidad colombiana, menú degustación de 13 platos, se centra en mariscos capturados de forma sostenible. Los chefs Rob Pevitts, Mateo Ríos y Sebastián Marín son figuras clave.",
-    direccion: "Cra. 36 #10a-45",
-      imagen: "/images/xo.jpg",
-    horarioAtencion: "Probablemente similar al de Carmen dada la propiedad compartida",
-  },
-  {
-    id: "ocio",
-    nombre: "Ocio / Oci.Mde",
-    descripcion:
-      "Comida de alta calidad para el almuerzo o la cena, versiones elevadas de clásicos caseros, menú de temporada, conocido por sus alimentos cocinados a fuego lento. La chef Laura Londoño es una figura clave.",
-    direccion: "Cra 33 #7-21",
-    imagen: "/images/ocio.jpg",
-    horarioAtencion: "12:00–14:30 y 18:30–22:30 (el sitio web confirma horarios similares)",
-  },
-  {
-    id: "in-situ",
-    nombre: "In Situ",
-    descripcion:
-      "Ubicado dentro de los jardines botánicos de Medellín, espacio moderno al aire libre, versiones contemporáneas de sabores colombianos tradicionales.",
-    direccion: "Calle 73 N #51D-14",
-    imagen: "images/situ.jpg",
-    horarioAtencion: "Probablemente se alinea con el horario del jardín botánico",
-  },
-  {
-    id: "la-provincia",
-    nombre: "La Provincia",
-    descripcion:
-      "Sirviendo desde 1993, restaurante de lujo, ambiente acogedor. Conocido por sus tortellini de caracoles.",
-    direccion: "Cra. 42 #3 Sur 81 Local 303",
-      imagen: "/images/provincia.jpg",
-    horarioAtencion: "No se menciona explícitamente",
-  },
-  {
-    id: "moshi-sushi-bar",
-    nombre: "Moshi Sushi Bar",
-    descripcion:
-      "Concepto del mismo equipo de Carmen y XO, utiliza ingredientes locales sostenibles de alta calidad, ofrece estilo omakase, experiencia íntima con chefs presentando la comida.",
-    direccion: "Cra. 36 #10A-45",
-      imagen: "/images/moshi.jpg",
-    horarioAtencion: "No se menciona explícitamente",
-  },
-  {
-    id: "herbario",
-    nombre: "Herbario",
-    descripcion:
-      "En un antiguo almacén, presenta ingredientes e influencias de todo el país. Se menciona al chef Rodrigo Isaza.",
-    direccion: "Cra 43D #1030",
-      imagen: "/images/herbario.jpg",
-    horarioAtencion: "No se menciona explícitamente",
-  },
-  {
-    id: "sambonbi",
-    nombre: "Sambombi Bistró Local",
-    descripcion:
-      "Verdadera cocina de la granja a la mesa, restaurante discreto con sede en Provenza, cocina hiperlocal sostenible, superando los límites, calificado como de los mejores por una fuente. Se menciona al chef Jhon Zárate.",
-    direccion: "Cra. 35 #7-10",
-      imagen: "/images/sambonbi.jpg",
-    horarioAtencion: "No se menciona explícitamente",
-  },
-  {
-    id: "relato",
-    nombre: "Relato",
-    descripcion:
-      "Alta cocina en Provenza, combina varios sabores internacionales.",
-    direccion: "Cra 33 # 7-115",
-      imagen: "/images/relato.jpg",
-    horarioAtencion: "12–3:30 PM, 6–10:30 PM",
-  },
-  {
-    id: "barbaro",
-    nombre: "Bárbaro Cocina Primitiva sede Poblado",
-    descripcion:
-      "Popular asador, se centra en sabores intensos y técnicas de cocción lenta, cortes de carne y mariscos de primera calidad.",
-    direccion: "Cra. 37 #10a-23",
-      imagen: "/images/barbaro.jpg",
-    horarioAtencion: "No se menciona explícitamente",
-  },
-  {
-    id: "la-chagra",
-    nombre: "La Chagra (Sabores Amazónicos) / Jura Kub",
-    descripcion:
-      "Experiencia culinaria, abores amazonicos y cocteles exoticos, fusion , presentaciones creativas, utilización de ingredientes traídos frescos.",
-    direccion: "Cra 33 #7a24 , Carrera 34",
-      imagen: "/images/chagra.jpg",
-    horarioAtencion: "No se menciona explícitamente",
-  },
-  {
-    id: "banhomia",
-    nombre: "Banhomí",
-    descripcion:
-      "Gema culinaria en Poblado, conocida por su pizza de masa fina, ofrece noches españolas, ambiente agradable.",
-    direccion: "Cra. 37 # 8-53",
-      imagen: "/images/banhomia.jpg",
-    horarioAtencion: "No se menciona explícitamente",
-  },
-  {
-    id: "naan",
-    nombre: "Naan",
-    descripcion:
-      "Mezcla de especias y recetas indias con ingredientes locales sudamericanos.",
-    direccion: "Cra. 35 #7-75",
-      imagen: "/images/naan.jpg",
-    horarioAtencion: "No se menciona explícitamente",
-  },
-  {
-    id: "la-causa",
-    nombre: "La Causa",
-    descripcion:
-      "Amplia selección de platos, sushi increíble, precios muy buenos.",
-    direccion: "Cra 33 #8A - 41",
-      imagen: "/images/causa.jpg",
-    horarioAtencion: "No se menciona explícitamente",
-  },
-  {
-    id: "oni-nikkei",
-    nombre: "ONI Nikkei - sushi medellin",
-    descripcion:
-      "Decoracion legante, sabores experimentales, síntesis armoniosa de las cocinas peruana y japonesa.",
-    direccion: "Cra. 35 #10B - 66 Velatorio, local 105",
-      imagen: "/images/oni.jpg",
-    horarioAtencion: "No se menciona explícitamente",
-  },
-  {
-    id: "casa-el-ramal",
-    nombre: "Casa El Ramal",
-    descripcion:
-      "Joya escondida excepcional y distintiva , magnífica música en vivo , pilas de leña ardiendo con grandes ollas de plata.",
-    direccion: "Cra 43D #10 - 72",
-      imagen: "/images/ramal.jpg",
-    horarioAtencion: "No se menciona explícitamente",
-  },
-  {
-    id: "restaurante-cuan",
-    nombre: "Restaurante Cuón",
-    descripcion:
-      "Restaurante asiático de lujo, sofisticada selección de platos y cócteles asiáticos, restaurante favorito del autor.",
-    direccion: "Cl. 8 #43A- 29",
-      imagen: "/images/cuan.jpg",
-    horarioAtencion: "Ver fragmento",
-  },
-];
+// Función para importar datos iniciales (solo una vez)
+// Asegúrate de eliminar o comentar esta función después de la primera ejecución para evitar duplicados
+const importInitialData = async () => {
+  try {
+    const batch = [];
+    
+    for (const restaurant of initialData) {
+      // Verificar si el restaurante ya existe
+      const q = query(
+        collection(db, "restaurantes"), 
+        where("nombre", "==", restaurant.nombre)
+      );
+      const querySnapshot = await getDocs(q);
+      
+      // Solo agregar si no existe
+      if (querySnapshot.empty) {
+        batch.push(addDoc(collection(db, "restaurantes"), restaurant));
+      } else {
+        console.log(`Restaurante "${restaurant.nombre}" ya existe, se omitirá.`);
+      }
+    }
+
+    if (batch.length > 0) {
+      await Promise.all(batch);
+      console.log(`${batch.length} nuevos restaurantes importados exitosamente`);
+      fetchRestaurants(); // Actualiza la lista después de importar
+    } else {
+      console.log("No hay nuevos restaurantes para importar");
+    }
+  } catch (error) {
+    console.error("Error al importar datos:", error);
+  }
+};
 
 // Componente Navbar inlined
 const Navbar = ({ setCurrentView }) => {
@@ -247,13 +118,44 @@ const Home = ({ restaurantdata }) => {
 };
 
 // Componente NewRestaurant inlined
-const NewRestaurant = () => {
+const NewRestaurant = ({ onAdd, goHome }) => {
+    const [form, setForm] = useState({
+        nombre: '',
+        descripcion: '',
+        direccion: '',
+        horario: '',
+        imagen: ''
+    });
+
+    const handleChange = (e) => {
+        setForm({ ...form, [e.target.name]: e.target.value });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            await addDoc(collection(db, "restaurantes"), {
+                nombre: form.nombre,
+                descripcion: form.descripcion,
+                direccion: form.direccion,
+                horarioAtencion: form.horario,
+                imagen: form.imagen,
+            });
+            setForm({ nombre: '', descripcion: '', direccion: '', horario: '', imagen: '' });
+            if (onAdd) onAdd();
+            if (goHome) goHome();
+        } catch (error) {
+            console.error("Error al guardar restaurante:", error);
+            alert("Error al guardar el restaurante");
+        }
+    };
+
     return (
         <div className="bg-white p-8 rounded-lg shadow-xl max-w-2xl mx-auto my-10">
             <h2 className="text-3xl font-serif font-semibold text-gray-800 mb-6 text-center">
                 Añadir Nuevo Restaurante
             </h2>
-            <form className="space-y-6">
+            <form className="space-y-6" onSubmit={handleSubmit}>
                 <div>
                     <label htmlFor="nombre" className="block text-lg font-medium text-gray-700 mb-1">
                         Nombre del Restaurante
@@ -262,8 +164,11 @@ const NewRestaurant = () => {
                         type="text"
                         id="nombre"
                         name="nombre"
+                        value={form.nombre}
+                        onChange={handleChange}
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                         placeholder="Ej. El Cielo"
+                        required
                     />
                 </div>
                 <div>
@@ -274,8 +179,11 @@ const NewRestaurant = () => {
                         id="descripcion"
                         name="descripcion"
                         rows="4"
+                        value={form.descripcion}
+                        onChange={handleChange}
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                         placeholder="Una breve descripción del restaurante..."
+                        required
                     ></textarea>
                 </div>
                 <div>
@@ -286,8 +194,11 @@ const NewRestaurant = () => {
                         type="text"
                         id="direccion"
                         name="direccion"
+                        value={form.direccion}
+                        onChange={handleChange}
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                         placeholder="Ej. Calle 7d #43c-36"
+                        required
                     />
                 </div>
                 <div>
@@ -298,10 +209,48 @@ const NewRestaurant = () => {
                         type="text"
                         id="horario"
                         name="horario"
+                        value={form.horario}
+                        onChange={handleChange}
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                         placeholder="Ej. Abierto para almuerzo y cena"
+                        required
                     />
                 </div>
+                                <div>
+                    <label htmlFor="imagen" className="block text-lg font-medium text-gray-700 mb-1">
+                        URL de la Imagen <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                        type="url"
+                        id="imagen"
+                        name="imagen"
+                        value={form.imagen}
+                        onChange={handleChange}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        placeholder="Pega aquí la URL de la imagen (ej: https://...)"
+                        required
+                    />
+                    <p className="text-sm text-gray-500 mt-1">
+                        Debes pegar la URL directa de una imagen (por ejemplo, de Google Fotos, Imgur, etc).
+                    </p>
+                </div>
+
+                {/* Vista previa de la imagen */}
+                {form.imagen && (
+                    <div className="mt-4">
+                        <p className="text-lg font-medium text-gray-700 mb-2">Vista previa:</p>
+                        <img
+                            src={form.imagen}
+                            alt="Vista previa"
+                            className="w-full h-48 object-cover rounded-lg"
+                            onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = "https://placehold.co/400x250/FFD1DC/333333?text=Imagen+no+disponible";
+                            }}
+                        />
+                    </div>
+                )}
+
                 <button
                     type="submit"
                     className="w-full bg-indigo-600 text-white py-3 px-6 rounded-lg font-semibold text-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-300 shadow-md hover:shadow-lg"
@@ -314,21 +263,40 @@ const NewRestaurant = () => {
 };
 
 // Componente Search inlined
-const Search = ({ restaurantdata }) => {
+const Search = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  const handleSearch = (event) => {
+  const handleSearch = async (event) => {
     const term = event.target.value.toLowerCase();
     setSearchTerm(term);
-      const results = restaurantdata.filter((restaurant) =>
-      restaurant.imagen.toLowerCase().includes(term)  ||
-      restaurant.nombre.toLowerCase().includes(term) ||
-      restaurant.descripcion.toLowerCase().includes(term) ||
-      (restaurant.tipoCocina && restaurant.tipoCocina.some(cuisine => cuisine.toLowerCase().includes(term))) ||
-      restaurant.direccion.toLowerCase().includes(term)
-    );
-    setSearchResults(results);
+
+    if (!term) {
+      setSearchResults([]);
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const querySnapshot = await getDocs(collection(db, "restaurantes"));
+      const allRestaurants = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+      // Filtrado en el cliente (puedes optimizar con índices o queries más avanzadas si tienes muchos datos)
+      const results = allRestaurants.filter((restaurant) =>
+        (restaurant.imagen && restaurant.imagen.toLowerCase().includes(term)) ||
+        (restaurant.nombre && restaurant.nombre.toLowerCase().includes(term)) ||
+        (restaurant.descripcion && restaurant.descripcion.toLowerCase().includes(term)) ||
+        (restaurant.tipoCocina && Array.isArray(restaurant.tipoCocina) && restaurant.tipoCocina.some(cuisine => cuisine.toLowerCase().includes(term))) ||
+        (restaurant.direccion && restaurant.direccion.toLowerCase().includes(term))
+      );
+      setSearchResults(results);
+    } catch (error) {
+      console.error("Error al buscar restaurantes:", error);
+      setSearchResults([]);
+    }
+    setLoading(false);
   };
 
   return (
@@ -345,7 +313,9 @@ const Search = ({ restaurantdata }) => {
           onChange={handleSearch}
         />
       </div>
-      {searchTerm && searchResults.length > 0 ? (
+      {loading ? (
+        <p className="text-center text-gray-500">Buscando...</p>
+      ) : searchTerm && searchResults.length > 0 ? (
         <div>
           <h3 className="text-xl font-semibold text-gray-700 mb-4">
             Resultados de la búsqueda:
@@ -357,7 +327,7 @@ const Search = ({ restaurantdata }) => {
                 className="bg-gray-50 rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition duration-300 border-b-2 border-indigo-500 cursor-pointer"
               >
                 <img
-                  src={`https://placehold.co/400x250/FFD1DC/333333?text=${encodeURIComponent(restaurant.nombre)}`}
+                  src={restaurant.imagen}
                   alt={restaurant.nombre}
                   className="w-full h-56 object-cover"
                   onError={(e) => { e.target.onerror = null; e.target.src="https://placehold.co/400x250/FFD1DC/333333?text=Imagen+no+disponible"; }}
@@ -367,7 +337,7 @@ const Search = ({ restaurantdata }) => {
                     {restaurant.nombre}
                   </h3>
                   <p className="text-gray-600 text-sm mb-3 font-light">
-                    {restaurant.descripcion.substring(0, 100)}...
+                    {restaurant.descripcion?.substring(0, 100)}...
                   </p>
                   <p className="text-gray-700 text-sm mb-1">
                     <strong className="font-semibold">Dirección:</strong> {restaurant.direccion}
@@ -401,8 +371,25 @@ const Search = ({ restaurantdata }) => {
 
 // Componente principal de la aplicación
 const App = () => {
-  // Estado para controlar la vista actual de la aplicación
   const [currentView, setCurrentView] = useState('home');
+  const [restaurantdata, setRestaurantdata] = useState([]);
+
+  const fetchRestaurants = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, "restaurantes"));
+      setRestaurantdata(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    } catch (error) {
+      console.error("Error al obtener restaurantes:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchRestaurants();
+  }, []);
+
+  useEffect(() => {
+    console.log("Vista actual:", currentView);
+  }, [currentView]);
 
   // Función para renderizar el componente según la vista actual
   const renderView = () => {
@@ -412,7 +399,7 @@ const App = () => {
       case 'search':
         return <Search restaurantdata={restaurantdata} />;
       case 'new-restaurant':
-        return <NewRestaurant />;
+        return <NewRestaurant onAdd={fetchRestaurants} goHome={() => setCurrentView('home')} />;
       default:
         return <Home restaurantdata={restaurantdata} />;
     }
